@@ -1,26 +1,30 @@
-import os
 from flask import Flask, request, render_template
-from openai import OpenAI
 from dotenv import load_dotenv
+import os
+from openai import OpenAI
 
-load_dotenv()  # Load environment variables from .env
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Read API key from environment
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("OPENAI_API_KEY not found in environment variables")
 
-def extract_themes(text):
-    prompt = f"Extract key themes from the following text:\n\n{text}\n\nThemes:"
-    
+# Initialize OpenAI client
+client = OpenAI(api_key=api_key)
+
+def extract_themes(sentence):
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",  # or "gpt-4" if available to you
+        model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant that extracts key themes."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=0.5
+            {"role": "system", "content": "You are a helpful assistant that extracts themes from text."},
+            {"role": "user", "content": f"Extract themes from the following sentence: {sentence}"}
+        ]
     )
-
+    # Extract content from response
     themes = response.choices[0].message.content.strip()
     return themes
 
@@ -28,9 +32,10 @@ def extract_themes(text):
 def index():
     themes = ""
     if request.method == "POST":
-        sentence = request.form["sentence"]
-        themes = extract_themes(sentence)
+        sentence = request.form.get("sentence", "")
+        if sentence:
+            themes = extract_themes(sentence)
     return render_template("index.html", themes=themes)
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(debug=True)
