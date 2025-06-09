@@ -39,25 +39,39 @@ def extract_themes(sentence):
 
     return response.choices[0].message.content.strip()
 def generate_spell(theme):
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a spellcrafter who turns themes into poetic magic spells. Use metaphor, rhythm, and a slight RPG flair."
+        },
+        {
+            "role": "user",
+            "content": f"Create a spell based on the theme: {theme}"
+        }
+    ]
+
     try:
+        # Try using GPT-4-Turbo
         response = client.chat.completions.create(
             model="gpt-4-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a spellcrafter who turns themes into poetic magic spells. Use metaphor, rhythm, and a slight RPG flair."
-                },
-                {
-                    "role": "user",
-                    "content": f"Create a spell based on the theme: {theme}"
-                }
-            ],
+            messages=messages,
             temperature=0.9,
         )
         return response.choices[0].message.content.strip()
-    except Exception as e:
-        return f"Error generating spell: {e}"
 
+    except Exception as e:
+        if "model" in str(e).lower() and ("not found" in str(e).lower() or "access" in str(e).lower()):
+            try:
+                # Fallback to GPT-3.5-Turbo
+                response = client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=messages,
+                    temperature=0.9,
+                )
+                return "(Fallback to GPT-3.5) " + response.choices[0].message.content.strip()
+            except Exception as fallback_error:
+                return f"Error generating spell with fallback: {fallback_error}"
+        return f"Error generating spell: {e}"
 
 @app.route("/", methods=["GET", "POST"])
 def index():
