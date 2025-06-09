@@ -8,7 +8,7 @@ load_dotenv()
 api_key = os.getenv("OPENAI_API_KEY")
 
 # Initialize OpenAI client
-client = OpenAI(api_key=api_key, organization="org-Jjg4gtkr3bGYY4AMoI2a7fNb"
+client = OpenAI(api_key=api_key, organization="org-Jjg4gtkr3bGYY4AMoI2a7fNb")
 
 # Initialize Flask app
 app = Flask(__name__)
