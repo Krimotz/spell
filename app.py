@@ -38,6 +38,26 @@ def extract_themes(sentence):
             return "Sorry, theme extraction failed due to API quota issues."
 
     return response.choices[0].message.content.strip()
+def generate_spell(theme):
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a spellcrafter who turns themes into poetic magic spells. Use metaphor, rhythm, and a slight RPG flair."
+                },
+                {
+                    "role": "user",
+                    "content": f"Create a spell based on the theme: {theme}"
+                }
+            ],
+            temperature=0.9,
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"Error generating spell: {e}"
+
 
 @app.route("/", methods=["GET", "POST"])
 def index():
