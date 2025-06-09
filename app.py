@@ -14,11 +14,12 @@ if not api_key:
     raise ValueError("OPENAI_API_KEY not found in environment variables")
 
 # Initialize OpenAI client
-client = OpenAI(api_key=api_key)
+client = OpenAI(api_key=api_key, organization="org-Jjg4gtkr3bGYY4AMoI2a7fNb")
+
 
 def extract_themes(sentence):
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a helpful assistant that extracts themes from text."},
             {"role": "user", "content": f"Extract themes from the following sentence: {sentence}"}
