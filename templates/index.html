@@ -4,10 +4,8 @@
   <meta charset="UTF-8">
   <title>🔮 Semantic Spellcaster</title>
 
-  <!-- ✅ CSS Stylesheet Link (must be here) 
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">-->
-  <!-- For local testing only -->
-  <link rel="stylesheet" href="static/style.css">
+  <!-- ✅ CSS Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
   <!-- Optional fonts for RPG styling -->
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:wght@400;500&display=swap" rel="stylesheet">
@@ -18,25 +16,29 @@
 
   <form method="post">
     <label for="sentence"><strong>Your Sentence:</strong></label>
-    <textarea name="sentence" id="sentence" rows="3" required>{{ sentence }}</textarea>
+    <textarea name="sentence" id="sentence" rows="3" required>{{ sentence or '' }}</textarea>
     <button type="submit">Cast Spell</button>
   </form>
 
-  {% if result and spell %}
+  {% if result %}
     <div class="result">
       <h2>🎯 Theme Revealed: <em>{{ result }}</em></h2>
 
-      <div class="card">
-        <h3>✨ Spell Card</h3>
-        <pre>{{ spell }}</pre>
-      </div>
+      {% if spell %}
+        <div class="card">
+          <h3>✨ Spell Card</h3>
+          <pre>{{ spell }}</pre>
+        </div>
+      {% endif %}
 
-      <h3>🧠 Other Inferred Themes:</h3>
-      <ul>
-        {% for theme in themes %}
-          <li>{{ theme }}</li>
-        {% endfor %}
-      </ul>
+      {% if themes %}
+        <h3>🧠 Other Inferred Themes:</h3>
+        <ul>
+          {% for theme in themes %}
+            <li>{{ theme }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </div>
   {% endif %}
 </body>

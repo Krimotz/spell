@@ -41,11 +41,22 @@ def extract_themes(sentence):
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    themes = ""
     if request.method == "POST":
         sentence = request.form["sentence"]
         themes = extract_themes(sentence)
-    return render_template("index.html", themes=themes)
+
+        main_theme = themes[0] if themes else "No theme found"
+        spell = generate_spell(main_theme)
+
+        return render_template(
+            "index.html",
+            sentence=sentence,
+            result=main_theme,
+            spell=spell,
+            themes=themes[1:]  # pass remaining themes
+        )
+
+    return render_template("index.html", sentence="", result=None, spell=None, themes=None)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
