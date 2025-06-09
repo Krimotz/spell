@@ -1,46 +1,36 @@
 import os
-from flask import Flask, render_template, request
+from flask import Flask, request, render_template
 from openai import OpenAI
 from dotenv import load_dotenv
-import random
 
-# Load environment variables from .env (if running locally)
-load_dotenv()
+load_dotenv()  # Load environment variables from .env
 
 app = Flask(__name__)
+
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def extract_themes(sentence):
+def extract_themes(text):
+    prompt = f"Extract key themes from the following text:\n\n{text}\n\nThemes:"
+    
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo",  # or "gpt-4" if available to you
         messages=[
-            {"role": "system", "content": "Extract 5 broad thematic concepts from the given sentence that could inspire fantasy spells."},
-            {"role": "user", "content": sentence}
-        ]
+            {"role": "system", "content": "You are a helpful assistant that extracts key themes."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=0.5
     )
-    return response.choices[0].message.content.strip().split("\n")
 
-def generate_spell(theme):
-    response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": f"You're a fantasy RPG spell designer. Create a detailed and imaginative spell based on the theme: '{theme}'. Format the result like a spell card with the following fields: Name, School, Level, Casting Time, Range, Components, Duration, Description."}
-        ]
-    )
-    return response.choices[0].message.content.strip()
+    themes = response.choices[0].message.content.strip()
+    return themes
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    theme = None
-    spell = None
-
+    themes = ""
     if request.method == "POST":
         sentence = request.form["sentence"]
         themes = extract_themes(sentence)
-        theme = random.choice([t.strip("1234567890. ") for t in themes if t.strip()])
-        spell = generate_spell(theme)
-
-    return render_template("index.html", theme=theme, spell=spell)
+    return render_template("index.html", themes=themes)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
