@@ -41,7 +41,7 @@ def extract_themes(sentence):
 def generate_spell(theme):
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4-turbo",
             messages=[
                 {
                     "role": "system",
